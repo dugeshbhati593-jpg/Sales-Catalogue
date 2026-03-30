@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { APPLICATIONS, UserProfile } from '../types';
 import { Loader2, Upload, CheckCircle, Plus, X, Save } from 'lucide-react';
+import { cn } from '../lib/utils';
 
 interface NewEntryProps {
   profile: UserProfile;
@@ -17,12 +18,13 @@ export default function NewEntry({ profile }: NewEntryProps) {
   const [newAppName, setNewAppName] = useState('');
   const [addingAppLoading, setAddingAppLoading] = useState(false);
 
+  const [selectedApplications, setSelectedApplications] = useState<string[]>([]);
+
   const [formData, setFormData] = useState({
     design_no: '',
     content: '',
     gsm: '',
     color: '',
-    application: '',
   });
 
   useEffect(() => {
@@ -88,6 +90,12 @@ export default function NewEntry({ profile }: NewEntryProps) {
     setError('');
     setSuccess(false);
 
+    if (selectedApplications.length === 0) {
+      setError('Please select at least one application.');
+      setLoading(false);
+      return;
+    }
+
     try {
       let image_url = '';
       let storageErrorOccurred = false;
@@ -120,6 +128,7 @@ export default function NewEntry({ profile }: NewEntryProps) {
         .from('catalogue')
         .insert([{
           ...formData,
+          application: selectedApplications.join(', '),
           unit: profile.unit,
           image_url,
           author_id: profile.id,
@@ -135,8 +144,8 @@ export default function NewEntry({ profile }: NewEntryProps) {
         content: '',
         gsm: '',
         color: '',
-        application: '',
       });
+      setSelectedApplications([]);
       setImage(null);
     } catch (err: any) {
       setError(err.message);
@@ -218,8 +227,8 @@ export default function NewEntry({ profile }: NewEntryProps) {
             />
           </div>
           <div className="space-y-1 md:col-span-2">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-gray-700">Application</label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-medium text-gray-700">Applications (Multiple Selection)</label>
               {!isAddingApp ? (
                 <button
                   type="button"
@@ -240,7 +249,7 @@ export default function NewEntry({ profile }: NewEntryProps) {
             </div>
             
             {isAddingApp ? (
-              <div className="flex gap-2 animate-in slide-in-from-top-2 duration-200">
+              <div className="flex gap-2 animate-in slide-in-from-top-2 duration-200 mb-4">
                 <input
                   type="text"
                   className="flex-grow px-4 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
@@ -260,17 +269,38 @@ export default function NewEntry({ profile }: NewEntryProps) {
                 </button>
               </div>
             ) : (
-              <select
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                value={formData.application}
-                onChange={(e) => setFormData({ ...formData, application: e.target.value })}
-              >
-                <option value="" disabled>Select product</option>
+              <div className="grid grid-cols-1 gap-2 p-3 border border-gray-200 rounded-xl bg-gray-50 max-h-64 overflow-y-auto shadow-inner">
                 {dynamicApplications.map((app) => (
-                  <option key={app} value={app}>{app}</option>
+                  <label 
+                    key={app} 
+                    className={cn(
+                      "flex items-center gap-3 p-3 rounded-lg border transition-all cursor-pointer text-sm",
+                      selectedApplications.includes(app)
+                        ? "bg-blue-50 border-blue-300 text-blue-700 font-bold shadow-sm"
+                        : "bg-white border-gray-200 text-gray-600 hover:border-blue-200 hover:bg-white"
+                    )}
+                  >
+                    <input
+                      type="checkbox"
+                      className="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 transition-transform active:scale-90"
+                      checked={selectedApplications.includes(app)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedApplications([...selectedApplications, app]);
+                        } else {
+                          setSelectedApplications(selectedApplications.filter(a => a !== app));
+                        }
+                      }}
+                    />
+                    <span className="flex-1">{app}</span>
+                  </label>
                 ))}
-              </select>
+              </div>
+            )}
+            {selectedApplications.length > 0 && !isAddingApp && (
+              <p className="mt-2 text-xs text-blue-600 font-medium">
+                Selected: {selectedApplications.join(', ')}
+              </p>
             )}
           </div>
         </div>
