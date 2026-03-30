@@ -1,0 +1,48 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile information including unit and role.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "firstName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "unit": { "type": "string", "enum": ["KDC", "Udhana", "VAU", "DPU/DPN", "EMB"] },
+        "email": { "type": "string", "format": "email" },
+        "role": { "type": "string", "enum": ["Unit Head", "Master"] }
+      },
+      "required": ["uid", "firstName", "lastName", "unit", "email", "role"]
+    },
+    "CatalogueEntry": {
+      "title": "Catalogue Entry",
+      "description": "A single entry in the sales catalogue.",
+      "type": "object",
+      "properties": {
+        "unit": { "type": "string" },
+        "designNo": { "type": "string" },
+        "content": { "type": "string" },
+        "gsm": { "type": "string" },
+        "color": { "type": "string" },
+        "application": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "imgCreationChecked": { "type": "boolean" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "uploadLink": { "type": "string" },
+        "authorUid": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["unit", "designNo", "content", "gsm", "color", "application", "authorUid", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/catalogue/{entryId}": {
+      "schema": "CatalogueEntry",
+      "description": "Catalogue entries"
+    }
+  }
+}

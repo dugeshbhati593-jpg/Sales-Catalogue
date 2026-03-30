@@ -1,0 +1,107 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: uid
+    // Fields:
+    //   - uid: string (required)
+    //   - firstName: string (required)
+    //   - lastName: string (required)
+    //   - unit: string (required, enum: ["KDC", "Udhana", "VAU", "DPU/DPN", "EMB"])
+    //   - email: string (required, format: email)
+    //   - role: string (required, enum: ["Unit Head", "Master"])
+    //
+    // Collection: catalogue
+    // Document ID: entryId
+    // Fields:
+    //   - unit: string (required)
+    //   - designNo: string (required)
+    //   - content: string (required)
+    //   - gsm: string (required)
+    //   - color: string (required)
+    //   - application: string (required)
+    //   - imageUrl: string (optional)
+    //   - imgCreationChecked: bool (optional)
+    //   - timestamp: timestamp (optional)
+    //   - uploadLink: string (optional)
+    //   - authorUid: string (required)
+    //   - createdAt: timestamp (required)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isMaster() {
+      return isAuthenticated() && (
+        getUserData().role == 'Master' || 
+        (request.auth.token.email == "dugeshbhati593@gmail.com" && request.auth.token.email_verified == true)
+      );
+    }
+
+    function isUnitHead() {
+      return isAuthenticated() && getUserData().role == 'Unit Head';
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasOnly(['uid', 'firstName', 'lastName', 'unit', 'email', 'role']) &&
+             data.uid is string &&
+             data.firstName is string && data.firstName.size() > 0 && data.firstName.size() < 100 &&
+             data.lastName is string && data.lastName.size() > 0 && data.lastName.size() < 100 &&
+             data.unit in ["KDC", "Udhana", "VAU", "DPU/DPN", "EMB"] &&
+             data.email is string &&
+             data.role in ["Unit Head", "Master"];
+    }
+
+    function isValidCatalogueEntry(data) {
+      return data.keys().hasAll(['unit', 'designNo', 'content', 'gsm', 'color', 'application', 'authorUid', 'createdAt']) &&
+             data.unit is string &&
+             data.designNo is string &&
+             data.content is string &&
+             data.gsm is string &&
+             data.color is string &&
+             data.application is string &&
+             data.authorUid is string &&
+             data.createdAt is timestamp;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{uid} {
+      allow read: if isOwner(uid) || isMaster();
+      allow create: if isAuthenticated() && isValidUser(request.resource.data) && (isOwner(uid) || isMaster());
+      allow update: if isAuthenticated() && isValidUser(request.resource.data) && (isOwner(uid) || isMaster());
+    }
+
+    match /catalogue/{entryId} {
+      allow read: if isMaster() || (isUnitHead() && resource.data.unit == getUserData().unit);
+      allow create: if isAuthenticated() && isValidCatalogueEntry(request.resource.data) && 
+                    (isMaster() || (isUnitHead() && request.resource.data.unit == getUserData().unit));
+      allow update: if isAuthenticated() && isValidCatalogueEntry(request.resource.data) && 
+                    (isMaster() || (isUnitHead() && resource.data.unit == getUserData().unit && request.resource.data.unit == resource.data.unit));
+      allow delete: if isMaster();
+    }
+  }
+}

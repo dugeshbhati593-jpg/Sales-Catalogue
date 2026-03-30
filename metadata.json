@@ -1,0 +1,5 @@
+{
+  "name": "Ginza Sales Catalogue",
+  "description": "A professional sales catalogue application for Ginza Industries Ltd with unit-based access control, entry management, and database filtering.",
+  "requestFramePermissions": []
+}
