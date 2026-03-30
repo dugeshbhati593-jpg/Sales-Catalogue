@@ -19,6 +19,7 @@ export default function Database({ profile }: DatabaseProps) {
   const [loading, setLoading] = useState(true);
   const [syncingId, setSyncingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [dynamicApplications, setDynamicApplications] = useState<string[]>(APPLICATIONS);
   const [filters, setFilters] = useState({
     designNo: '',
     application: '',
@@ -29,6 +30,7 @@ export default function Database({ profile }: DatabaseProps) {
 
   useEffect(() => {
     fetchEntries();
+    fetchApplications();
 
     // Subscribe to real-time changes
     const channel = supabase
@@ -36,12 +38,37 @@ export default function Database({ profile }: DatabaseProps) {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'catalogue' }, () => {
         fetchEntries();
       })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'applications' }, () => {
+        fetchApplications();
+      })
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
   }, [profile]);
+
+  const fetchApplications = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('applications')
+        .select('name')
+        .order('name');
+      
+      if (error) {
+        if (error.code === '42P01') return;
+        throw error;
+      }
+
+      if (data) {
+        const customApps = data.map(app => app.name);
+        const combined = Array.from(new Set([...APPLICATIONS, ...customApps]));
+        setDynamicApplications(combined);
+      }
+    } catch (err) {
+      console.error('Error fetching applications:', err);
+    }
+  };
 
   const fetchEntries = async () => {
     try {
@@ -231,7 +258,7 @@ export default function Database({ profile }: DatabaseProps) {
             onChange={(e) => setFilters({ ...filters, application: e.target.value })}
           >
             <option value="">All Applications</option>
-            {APPLICATIONS.map((app) => (
+            {dynamicApplications.map((app) => (
               <option key={app} value={app}>{app}</option>
             ))}
           </select>

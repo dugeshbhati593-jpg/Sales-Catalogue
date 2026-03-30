@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { APPLICATIONS, UserProfile } from '../types';
-import { Loader2, Upload, CheckCircle } from 'lucide-react';
+import { Loader2, Upload, CheckCircle, Plus, X, Save } from 'lucide-react';
 
 interface NewEntryProps {
   profile: UserProfile;
@@ -12,6 +12,10 @@ export default function NewEntry({ profile }: NewEntryProps) {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const [image, setImage] = useState<File | null>(null);
+  const [dynamicApplications, setDynamicApplications] = useState<string[]>(APPLICATIONS);
+  const [isAddingApp, setIsAddingApp] = useState(false);
+  const [newAppName, setNewAppName] = useState('');
+  const [addingAppLoading, setAddingAppLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     design_no: '',
@@ -20,6 +24,61 @@ export default function NewEntry({ profile }: NewEntryProps) {
     color: '',
     application: '',
   });
+
+  useEffect(() => {
+    fetchApplications();
+  }, []);
+
+  const fetchApplications = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('applications')
+        .select('name')
+        .order('name');
+      
+      if (error) {
+        if (error.code === '42P01') {
+          // Table doesn't exist yet, just use defaults
+          return;
+        }
+        throw error;
+      }
+
+      if (data) {
+        const customApps = data.map(app => app.name);
+        // Combine defaults with custom apps, removing duplicates
+        const combined = Array.from(new Set([...APPLICATIONS, ...customApps]));
+        setDynamicApplications(combined);
+      }
+    } catch (err) {
+      console.error('Error fetching applications:', err);
+    }
+  };
+
+  const handleAddApplication = async () => {
+    if (!newAppName.trim()) return;
+    setAddingAppLoading(true);
+    try {
+      const { error } = await supabase
+        .from('applications')
+        .insert([{ name: newAppName.trim() }]);
+      
+      if (error) {
+        if (error.code === '42P01') {
+          throw new Error('Applications table not found. Please create it in Supabase SQL Editor first.');
+        }
+        throw error;
+      }
+
+      setNewAppName('');
+      setIsAddingApp(false);
+      await fetchApplications();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setAddingAppLoading(false);
+    }
+  };
 
   const DEFAULT_DRIVE_LINK = 'https://drive.google.com/drive/folders/1jRNWW6YGbNlQOHIFY45TgFgmyD2dlSYi?usp=drive_link';
 
@@ -153,18 +212,60 @@ export default function NewEntry({ profile }: NewEntryProps) {
             />
           </div>
           <div className="space-y-1 md:col-span-2">
-            <label className="text-sm font-medium text-gray-700">Application</label>
-            <select
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-              value={formData.application}
-              onChange={(e) => setFormData({ ...formData, application: e.target.value })}
-            >
-              <option value="" disabled>Select product</option>
-              {APPLICATIONS.map((app) => (
-                <option key={app} value={app}>{app}</option>
-              ))}
-            </select>
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-gray-700">Application</label>
+              {!isAddingApp ? (
+                <button
+                  type="button"
+                  onClick={() => setIsAddingApp(true)}
+                  className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 bg-blue-50 px-2 py-1 rounded"
+                >
+                  <Plus className="w-3 h-3" /> Add New
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setIsAddingApp(false)}
+                  className="text-xs font-bold text-red-600 hover:text-red-700 flex items-center gap-1 bg-red-50 px-2 py-1 rounded"
+                >
+                  <X className="w-3 h-3" /> Cancel
+                </button>
+              )}
+            </div>
+            
+            {isAddingApp ? (
+              <div className="flex gap-2 animate-in slide-in-from-top-2 duration-200">
+                <input
+                  type="text"
+                  className="flex-grow px-4 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                  placeholder="Enter new application name..."
+                  value={newAppName}
+                  onChange={(e) => setNewAppName(e.target.value)}
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  disabled={addingAppLoading}
+                  onClick={handleAddApplication}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+                >
+                  {addingAppLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  Save
+                </button>
+              </div>
+            ) : (
+              <select
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                value={formData.application}
+                onChange={(e) => setFormData({ ...formData, application: e.target.value })}
+              >
+                <option value="" disabled>Select product</option>
+                {dynamicApplications.map((app) => (
+                  <option key={app} value={app}>{app}</option>
+                ))}
+              </select>
+            )}
           </div>
         </div>
 

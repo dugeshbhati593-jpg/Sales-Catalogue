@@ -1,4 +1,4 @@
-export type Unit = 'KDC' | 'Udhana' | 'VAU' | 'DPU/DPN' | 'EMB';
+export type Unit = 'KDC' | 'Udhana' | 'VAU' | 'DPU/DPN' | 'EMB' | 'TLU';
 export type Role = 'Unit Head' | 'Master';
 
 export interface UserProfile {
@@ -29,7 +29,7 @@ export interface CatalogueEntry {
   created_at: string;
 }
 
-export const UNITS: Unit[] = ['KDC', 'Udhana', 'VAU', 'DPU/DPN', 'EMB'];
+export const UNITS: Unit[] = ['KDC', 'Udhana', 'VAU', 'DPU/DPN', 'EMB','TLU',];
 export const ROLES: Role[] = ['Unit Head', 'Master'];
 export const APPLICATIONS = [
   'Shirt', 'Pant', 'Dress Top', 'Bra', 'Underwear', 'Jacket', 
