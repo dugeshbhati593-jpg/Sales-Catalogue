@@ -147,9 +147,15 @@ export default function NewEntry({ profile }: NewEntryProps) {
 
   return (
     <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-      <div className="mb-6">
-        <h2 className="text-xl font-bold text-gray-900">Create New Entry</h2>
-        <p className="text-sm text-gray-500">Adding entry for unit: <span className="font-semibold text-blue-600">{profile.unit}</span></p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-gray-900">Create New Entry</h2>
+          <p className="text-sm text-gray-500">Add a new catalogue entry below.</p>
+        </div>
+        <div className="bg-blue-50 px-3 py-1.5 rounded-xl border border-blue-100">
+          <p className="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Active Unit</p>
+          <p className="text-sm font-bold text-blue-700">{profile.unit}</p>
+        </div>
       </div>
 
       {success && (

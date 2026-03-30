@@ -216,12 +216,10 @@ export default function Database({ profile }: DatabaseProps) {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
         <div>
-          <h2 className="text-lg font-bold text-gray-900">Sales Catalogue Database</h2>
-          <p className="text-xs text-gray-500">Manage entries and view uploaded photos directly here.</p>
-        </div>
-        <div className="flex items-center gap-2 text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100">
-          <CheckCircle2 className="w-4 h-4" />
-          <span className="text-xs font-bold">Supabase Storage Active</span>
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-bold text-gray-900">Sales Catalogue Database</h2>
+            <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold rounded-full uppercase">{profile.unit}</span>
+          </div>
         </div>
       </div>
 
