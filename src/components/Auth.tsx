@@ -165,26 +165,68 @@ export default function Auth({ onProfileCreated }: AuthProps) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {!isLogin && (
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-gray-700">First Name</label>
-                <input
-                  required
-                  type="text"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                  value={formData.firstName}
-                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                />
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-gray-700">First Name</label>
+                  <input
+                    required
+                    type="text"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                    value={formData.firstName}
+                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-gray-700">Last Name</label>
+                  <input
+                    required
+                    type="text"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                    value={formData.lastName}
+                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                  />
+                </div>
               </div>
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-gray-700">Last Name</label>
-                <input
-                  required
-                  type="text"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                  value={formData.lastName}
-                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                />
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-gray-700">Role</label>
+                  <select
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                    value={formData.role}
+                    onChange={(e) => {
+                      const role = e.target.value as Role;
+                      setFormData({ 
+                        ...formData, 
+                        role,
+                        unit: role === 'Master' ? 'All' : formData.unit
+                      });
+                    }}
+                  >
+                    <option value="" disabled>Select Role</option>
+                    {ROLES.map((r) => (
+                      <option key={r} value={r}>{r}</option>
+                    ))}
+                  </select>
+                </div>
+                {formData.role !== 'Master' && (
+                  <div className="space-y-1">
+                    <label className="text-sm font-medium text-gray-700">Unit</label>
+                    <select
+                      required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                      value={formData.unit}
+                      onChange={(e) => setFormData({ ...formData, unit: e.target.value as Unit })}
+                    >
+                      <option value="" disabled>Select Unit</option>
+                      {UNITS.map((u) => (
+                        <option key={u} value={u}>{u}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -219,39 +261,6 @@ export default function Auth({ onProfileCreated }: AuthProps) {
               </button>
             </div>
           </div>
-
-          {!isLogin && (
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-gray-700">Unit</label>
-                <select
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                  value={formData.unit}
-                  onChange={(e) => setFormData({ ...formData, unit: e.target.value as Unit })}
-                >
-                  <option value="" disabled>Select Unit</option>
-                  {UNITS.map((u) => (
-                    <option key={u} value={u}>{u}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-gray-700">Role</label>
-                <select
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                  value={formData.role}
-                  onChange={(e) => setFormData({ ...formData, role: e.target.value as Role })}
-                >
-                  <option value="" disabled>Select Role</option>
-                  {ROLES.map((r) => (
-                    <option key={r} value={r}>{r}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          )}
 
           <button
             type="submit"

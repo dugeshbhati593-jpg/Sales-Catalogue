@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-import { APPLICATIONS, UserProfile } from '../types';
+import { APPLICATIONS, UserProfile, UNITS } from '../types';
 import { Loader2, Upload, CheckCircle, Plus, X, Save } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -25,6 +25,7 @@ export default function NewEntry({ profile }: NewEntryProps) {
     content: '',
     gsm: '',
     color: '',
+    unit: profile.unit,
   });
 
   useEffect(() => {
@@ -129,7 +130,6 @@ export default function NewEntry({ profile }: NewEntryProps) {
         .insert([{
           ...formData,
           application: selectedApplications.join(', '),
-          unit: profile.unit,
           image_url,
           author_id: profile.id,
           img_creation_checked: false,
@@ -144,6 +144,7 @@ export default function NewEntry({ profile }: NewEntryProps) {
         content: '',
         gsm: '',
         color: '',
+        unit: profile.unit,
       });
       setSelectedApplications([]);
       setImage(null);
@@ -163,7 +164,7 @@ export default function NewEntry({ profile }: NewEntryProps) {
         </div>
         <div className="bg-blue-50 px-3 py-1.5 rounded-xl border border-blue-100">
           <p className="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Active Unit</p>
-          <p className="text-sm font-bold text-blue-700">{profile.unit}</p>
+          <p className="text-sm font-bold text-blue-700">{formData.unit}</p>
         </div>
       </div>
 
@@ -182,6 +183,22 @@ export default function NewEntry({ profile }: NewEntryProps) {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {profile.role === 'Master' && (
+            <div className="space-y-1 md:col-span-2">
+              <label className="text-sm font-medium text-gray-700">Assign to Unit</label>
+              <select
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                value={formData.unit}
+                onChange={(e) => setFormData({ ...formData, unit: e.target.value as any })}
+              >
+                <option value="All">All Units</option>
+                {UNITS.map((u) => (
+                  <option key={u} value={u}>{u}</option>
+                ))}
+              </select>
+            </div>
+          )}
           <div className="space-y-1">
             <label className="text-sm font-medium text-gray-700">Design No</label>
             <input

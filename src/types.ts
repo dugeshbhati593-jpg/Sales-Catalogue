@@ -1,4 +1,4 @@
-export type Unit = 'KDC' | 'Udhana' | 'VAU' | 'DPU/DPN' | 'EMB' | 'TLU';
+export type Unit = 'KDC' | 'Udhana' | 'VAU' | 'DPU/DPN' | 'EMB' | 'TLU' | 'All';
 export type Role = 'Unit Head' | 'Master';
 
 export interface UserProfile {

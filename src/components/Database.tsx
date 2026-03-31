@@ -77,7 +77,7 @@ export default function Database({ profile }: DatabaseProps) {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (profile.role === 'Unit Head') {
+      if (profile.role !== 'Master') {
         query = query.eq('unit', profile.unit);
       }
 
