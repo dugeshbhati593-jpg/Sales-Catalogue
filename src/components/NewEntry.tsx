@@ -25,6 +25,7 @@ export default function NewEntry({ profile }: NewEntryProps) {
     content: '',
     gsm: '',
     color: '',
+    base: '',
     unit: profile.unit,
   });
 
@@ -144,6 +145,7 @@ export default function NewEntry({ profile }: NewEntryProps) {
         content: '',
         gsm: '',
         color: '',
+        base: '',
         unit: profile.unit,
       });
       setSelectedApplications([]);
@@ -221,6 +223,19 @@ export default function NewEntry({ profile }: NewEntryProps) {
               placeholder="e.g. 100% Cotton"
             />
           </div>
+          {formData.unit === 'EMB' && (
+            <div className="space-y-1 animate-in slide-in-from-top-2 duration-200">
+              <label className="text-sm font-medium text-gray-700">Base</label>
+              <input
+                required
+                type="text"
+                className="w-full px-4 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all bg-blue-50/30"
+                value={formData.base}
+                onChange={(e) => setFormData({ ...formData, base: e.target.value })}
+                placeholder="e.g. Mesh / Net"
+              />
+            </div>
+          )}
           <div className="space-y-1">
             <label className="text-sm font-medium text-gray-700">GSM</label>
             <input

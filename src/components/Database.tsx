@@ -130,6 +130,7 @@ export default function Database({ profile }: DatabaseProps) {
       content: entry.content,
       gsm: entry.gsm,
       color: entry.color,
+      base: entry.base,
       application: entry.application,
     });
     setEditSelectedApps(entry.application ? entry.application.split(', ') : []);
@@ -169,6 +170,7 @@ export default function Database({ profile }: DatabaseProps) {
           content: editFormData.content,
           gsm: editFormData.gsm,
           color: editFormData.color,
+          base: editFormData.base,
           application: editSelectedApps.join(', '),
           image_url,
         })
@@ -385,6 +387,7 @@ export default function Database({ profile }: DatabaseProps) {
                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Content</th>
                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">GSM</th>
                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Color</th>
+                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Base</th>
                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Application</th>
                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Images</th>
                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Upload</th>
@@ -408,6 +411,7 @@ export default function Database({ profile }: DatabaseProps) {
                   <td className="px-6 py-4 text-sm text-gray-600">{entry.content}</td>
                   <td className="px-6 py-4 text-sm text-gray-600">{entry.gsm}</td>
                   <td className="px-6 py-4 text-sm text-gray-600">{entry.color}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600">{entry.base || '-'}</td>
                   <td className="px-6 py-4">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                       {entry.application}
@@ -642,6 +646,17 @@ export default function Database({ profile }: DatabaseProps) {
                           onChange={(e) => setEditFormData({ ...editFormData, color: e.target.value })}
                         />
                       </div>
+                      {selectedEntry.unit === 'EMB' && (
+                        <div className="space-y-1">
+                          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Base</p>
+                          <input 
+                            type="text"
+                            className="w-full px-3 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-blue-50/30"
+                            value={editFormData.base}
+                            onChange={(e) => setEditFormData({ ...editFormData, base: e.target.value })}
+                          />
+                        </div>
+                      )}
                       <div className="space-y-2">
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Application</p>
                         <div className="grid grid-cols-1 gap-2 p-3 border border-gray-100 rounded-xl bg-gray-50 max-h-40 overflow-y-auto">
@@ -676,6 +691,12 @@ export default function Database({ profile }: DatabaseProps) {
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Color</p>
                         <p className="text-lg text-gray-700 font-medium">{selectedEntry.color}</p>
                       </div>
+                      {selectedEntry.unit === 'EMB' && (
+                        <div className="space-y-1">
+                          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Base</p>
+                          <p className="text-lg text-gray-700 font-medium">{selectedEntry.base || '-'}</p>
+                        </div>
+                      )}
                       <div className="space-y-1">
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Unit</p>
                         <p className="text-lg text-gray-700 font-medium">{selectedEntry.unit}</p>

@@ -18,6 +18,7 @@ export interface CatalogueEntry {
   content: string;
   gsm: string;
   color: string;
+  base?: string;
   application: string;
   image_url?: string;
   img_creation_checked?: boolean;
